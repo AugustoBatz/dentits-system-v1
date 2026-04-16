@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ensureDatabaseFile } from "./database.js";
@@ -66,18 +66,27 @@ function createWindow(): void {
 async function bootstrap(): Promise<void> {
   configureLogging();
   console.log("Iniciando Dentis Soft");
-  const dbPath = ensureDatabaseFile();
-  console.log("Database file path:", dbPath);
-  console.log("DATABASE_URL:", process.env.DATABASE_URL);
-  const { startServer } = await import("./server.js");
-  const port = await startServer();
-  apiBase = `http://127.0.0.1:${port}`;
+  try {
+    const dbPath = ensureDatabaseFile();
+    console.log("Database file path:", dbPath);
+    console.log("DATABASE_URL:", process.env.DATABASE_URL);
+    const { startServer } = await import("./server.js");
+    const port = await startServer();
+    apiBase = `http://127.0.0.1:${port}`;
 
-  ipcMain.handle("dentis:get-api-base", () => apiBase);
-  ipcMain.handle("dentis:export-logs", async () => exportLogs());
-  ipcMain.handle("dentis:get-log-path", () => getLogPath());
+    ipcMain.handle("dentis:get-api-base", () => apiBase);
+    ipcMain.handle("dentis:export-logs", async () => exportLogs());
+    ipcMain.handle("dentis:get-log-path", () => getLogPath());
 
-  createWindow();
+    createWindow();
+  } catch (error) {
+    console.error("Error fatal durante la inicialización de la aplicación.", error);
+    dialog.showErrorBox(
+      "Error al iniciar Dentis Soft",
+      "No fue posible inicializar la base de datos. Revisa app.log en la carpeta de datos de la aplicación.",
+    );
+    app.quit();
+  }
 }
 
 void app.whenReady().then(() => {
