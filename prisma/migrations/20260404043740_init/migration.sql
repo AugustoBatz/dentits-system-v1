@@ -1,0 +1,45 @@
+-- CreateTable
+CREATE TABLE "Patient" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userCode" TEXT NOT NULL,
+    "firstName" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
+    "documentType" TEXT NOT NULL,
+    "documentNumber" TEXT NOT NULL,
+    "birthDate" DATETIME NOT NULL,
+    "gender" TEXT,
+    "phone" TEXT NOT NULL,
+    "email" TEXT,
+    "address" TEXT,
+    "occupation" TEXT,
+    "allergies" TEXT,
+    "currentMedications" TEXT,
+    "systemicDiseases" TEXT,
+    "surgeries" TEXT,
+    "pregnant" BOOLEAN NOT NULL DEFAULT false,
+    "smoker" BOOLEAN NOT NULL DEFAULT false,
+    "medicalNotes" TEXT,
+    "lastDentalVisit" DATETIME,
+    "reasonForConsultation" TEXT,
+    "previousTreatments" TEXT,
+    "brushingFrequency" TEXT,
+    "flossing" BOOLEAN NOT NULL DEFAULT false,
+    "bleedingGums" BOOLEAN NOT NULL DEFAULT false,
+    "bruxism" BOOLEAN NOT NULL DEFAULT false,
+    "dentalNotes" TEXT,
+    "isInPain" BOOLEAN NOT NULL DEFAULT false,
+    "painLevel" INTEGER NOT NULL DEFAULT 0,
+    "painLocation" TEXT,
+    "painDuration" TEXT,
+    "painTrigger" TEXT,
+    "painDescription" TEXT,
+    "takesMedication" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Patient_userCode_key" ON "Patient"("userCode");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Patient_documentNumber_key" ON "Patient"("documentNumber");

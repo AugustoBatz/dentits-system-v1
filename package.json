@@ -1,0 +1,118 @@
+{
+  "name": "dentis-soft",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema de odontología — Electron + React (Vite) + Express + Prisma (SQLite)",
+  "main": "dist/main/index.js",
+  "type": "module",
+  "scripts": {
+    "postinstall": "prisma generate",
+    "dev": "npm run db:template && npm run build:main && concurrently -k \"vite\" \"tsc -p tsconfig.main.json --watch\" \"wait-on http://localhost:5173 && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .\"",
+    "build:main": "tsc -p tsconfig.main.json && node scripts/copy-generated-client.mjs",
+    "build:renderer": "vite build",
+    "db:template": "node scripts/create-template-db.mjs",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "tsx prisma/seed.ts",
+    "build": "npm run prisma:generate && npm run build:main && npm run build:renderer && cross-env FORCE_TEMPLATE_DB=1 npm run db:template",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:mac": "npm run build && electron-builder --mac"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "cors": "^2.8.5",
+    "electron-log": "^5.4.3",
+    "express": "^4.21.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^6.30.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^33.3.1",
+    "electron-builder": "^25.1.8",
+    "postcss": "^8.4.49",
+    "prisma": "^6.19.0",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5",
+    "wait-on": "^8.0.1"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "build": {
+    "appId": "com.dentisoft.desktop",
+    "productName": "Dentis Soft",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist/generated/**/*",
+      "package.json",
+      "src/generated/client/**/*"
+    ],
+    "asarUnpack": [
+      "node_modules/.prisma/**/*",
+      "node_modules/@prisma/client/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "prisma/migrations",
+        "to": "prisma/migrations",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "prisma/template.db",
+        "to": "prisma/template.db"
+      },
+      {
+        "from": "src/generated/client",
+        "to": "src/generated/client"
+      },
+      {
+        "from": "node_modules/.prisma/client",
+        "to": "prisma-engines",
+        "filter": [
+          "**/*query_engine-windows*",
+          "**/*.dll.node",
+          "**/schema.prisma"
+        ]
+      }
+    ],
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.medical"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

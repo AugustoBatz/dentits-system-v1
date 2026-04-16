@@ -1,0 +1,17 @@
+node_modules/
+client/node_modules/
+server/node_modules/
+client/dist/
+server/dist/
+dist/
+release/
+server/dev.db
+server/dev.db-journal
+server/prisma/dev.db
+server/prisma/dev.db-journal
+prisma/dev_migration.db
+prisma/dev_migration.db-journal
+prisma/template.db
+prisma/template.db-journal
+.env
+.DS_Store
