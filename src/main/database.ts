@@ -24,6 +24,19 @@ function resolvePrismaCliPath(): string {
   return require.resolve("prisma/build/index.js");
 }
 
+function resolveSchemaEnginePath(): string | null {
+  if (app.isPackaged) {
+    const packagedEngine = path.join(process.resourcesPath, "prisma-engines", "schema-engine-windows.exe");
+    return fs.existsSync(packagedEngine) ? packagedEngine : null;
+  }
+
+  try {
+    return require.resolve("@prisma/engines/schema-engine-windows.exe");
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Prisma + SQLite en Windows no acepta bien `file:///C:/...` de pathToFileURL;
  * usar `file:/C:/ruta/con/barras` evita fallos al abrir la base.
@@ -47,6 +60,7 @@ export function ensureDatabaseFile(): string {
   const dbPath = path.join(userData, "dentis.db");
   const template = resolveTemplatePath();
   const schemaPath = resolveSchemaPath();
+  const schemaEnginePath = resolveSchemaEnginePath();
 
   fs.mkdirSync(userData, { recursive: true });
 
@@ -77,6 +91,11 @@ export function ensureDatabaseFile(): string {
           ...process.env,
           DATABASE_URL: process.env.DATABASE_URL,
           ELECTRON_RUN_AS_NODE: "1",
+          ...(schemaEnginePath
+            ? {
+                PRISMA_SCHEMA_ENGINE_BINARY: schemaEnginePath,
+              }
+            : {}),
         },
         stdio: "pipe",
       },

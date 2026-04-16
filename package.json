@@ -96,6 +96,13 @@
           "**/*.dll.node",
           "**/schema.prisma"
         ]
+      },
+      {
+        "from": "node_modules/@prisma/engines",
+        "to": "prisma-engines",
+        "filter": [
+          "**/schema-engine-windows.exe"
+        ]
       }
     ],
     "mac": {
