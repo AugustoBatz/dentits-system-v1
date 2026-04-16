@@ -26,8 +26,24 @@ function resolvePrismaCliPath(): string {
 
 function resolveSchemaEnginePath(): string | null {
   if (app.isPackaged) {
+    const unpackedEngine = path.join(
+      process.resourcesPath,
+      "app.asar.unpacked",
+      "node_modules",
+      "@prisma",
+      "engines",
+      "schema-engine-windows.exe",
+    );
+    if (fs.existsSync(unpackedEngine)) {
+      return unpackedEngine;
+    }
+
     const packagedEngine = path.join(process.resourcesPath, "prisma-engines", "schema-engine-windows.exe");
-    return fs.existsSync(packagedEngine) ? packagedEngine : null;
+    if (fs.existsSync(packagedEngine)) {
+      return packagedEngine;
+    }
+
+    return null;
   }
 
   try {
@@ -81,8 +97,17 @@ export function ensureDatabaseFile(): string {
   process.env.DATABASE_URL = sqliteDatabaseUrl(dbPath);
   fs.accessSync(dbPath, fs.constants.R_OK | fs.constants.W_OK);
 
+  if (app.isPackaged && !schemaEnginePath) {
+    throw new Error(
+      "No se encontró schema-engine-windows.exe en el paquete. Recompila el instalador de Windows incluyendo los engines de Prisma fuera de app.asar.",
+    );
+  }
+
   try {
     console.log("Ejecutando prisma db push para sincronizar la base de datos...");
+    if (schemaEnginePath) {
+      console.log("Usando Prisma schema engine:", schemaEnginePath);
+    }
     execFileSync(
       process.execPath,
       [resolvePrismaCliPath(), "db", "push", "--skip-generate", "--schema", schemaPath],
